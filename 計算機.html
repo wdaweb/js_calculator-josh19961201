@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- css歸零 -->
+    <link
+      rel="stylesheet"
+      href="https://meyerweb.com/eric/tools/css/reset/reset200802.css"
+    />
+    <style>
+      table {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -40%);
+        filter: drop-shadow(0px 0px 40px #ccc);
+        background: none;
+      }
+      td {
+        width: 120px;
+        height: 120px;
+        background: #f0f7ee;
+        color: #003844;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        font-size: 40px;
+      }
+      #text {
+        box-sizing: border-box;
+        display: inline-block;
+        position: absolute;
+        overflow-x: auto;
+        top: -160px;
+        width: 480px;
+        height: 160px;
+        background: #003844;
+        color: #fff;
+        font-size: 70px;
+        line-height: 160px;
+        text-align: right;
+        cursor: default;
+        border-radius: 20px 20px 0 0;
+        padding: 0 20px;
+      }
+      .warm {
+        background: #bf4e30;
+        color: #f0f7ee;
+      }
+      .dark {
+        background: #006c67;
+        color: #f0f7ee;
+      }
+      .leftBottom {
+        border-radius: 0 0 0 20px;
+      }
+      .rightBottom {
+        border-radius: 0 0 20px 0;
+      }
+    </style>
+    <title>計算機</title>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td id="text" colspan="4">0</td>
+      </tr>
+      <tr>
+        <td class="warm">C</td>
+        <td class="dark">÷</td>
+        <td class="dark">×</td>
+        <td class="dark">-</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>8</td>
+        <td>9</td>
+        <td rowspan="2" class="dark">+</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>5</td>
+        <td>6</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td rowspan="2" class="warm rightBottom">=</td>
+      </tr>
+      <tr>
+        <td colspan="2" class="leftBottom">0</td>
+        <td>.</td>
+      </tr>
+    </table>
+    <script>
+      const text = document.getElementById(`text`); //抓顯示欄
+      const btns = document.querySelectorAll(`td:not(#text)`); //抓按鈕，非顯示欄的td都是按鈕
+
+      for (const btn of btns) {
+        btn.onclick = () => {
+          let btnText = btn.innerText; //按鈕設為btnText，等於其innerText
+          if (btn.innerText === `÷`) {
+            btnText = `/`;
+          }
+          if (btn.innerText === `×`) {
+            btnText = `*`;
+          }
+          if (btnText === `=`) {
+            text.innerText = eval(text.innerText);
+          } //當按下=時，將顯示欄的文字轉成計算式
+          else if (btnText === `C`) {
+            text.innerText = `0`;
+          } //當按下C時，顯示欄參數歸零
+          else {
+            if (
+              (text.innerText === `-` && isNaN(parseInt(btnText))) ||
+              (isNaN(parseInt(text.innerText[text.innerText.length - 1])) &&
+                isNaN(parseInt(btnText)))
+            ) {
+              return;
+            }
+            //如果顯示欄是減號，而且按的不是數字就return
+            //連按兩次不是數字就return
+
+            if (text.innerText === `.`) {
+              text.innerText = `0.`;
+            } //若只有小數點，自動在前面補上0
+
+            if (text.innerText !== `0`) {
+              text.innerText += btnText;
+            } //若顯示欄不等於0，加上按鈕的值(以字串方式加入)
+            else if (![`+`, `*`, `/`].includes(btnText)) {
+              text.innerText = btnText;
+            } //若顯示欄等於零，按下的鍵不是加、乘、除，顯示欄被按下的數字覆蓋
+          }
+        };
+      }
+
+      document.onkeydown = (e) => {
+        const btnText = e.key;
+        const allow = [
+          `+`,
+          `-`,
+          `*`,
+          `/`,
+          `.`,
+          `c`,
+          `Delete`,
+          `=`,
+          `Enter`,
+          `Backspace`,
+          `0`,
+          `1`,
+          `2`,
+          `3`,
+          `4`,
+          `5`,
+          `6`,
+          `7`,
+          `8`,
+          `9`,
+        ];
+        if (!allow.includes(btnText)) {
+          return;
+        }
+        if (btnText === `Enter` || btnText === `=`) {
+          text.innerText = eval(text.innerText);
+        } else if (btnText === `c` || btnText === `Delete`) {
+          text.innerText = `0`;
+        } else if (btnText === `Backspace`) {
+          text.innerText = text.innerText.substring(
+            0,
+            text.innerText.length - 1
+          );
+          if (text.innerText.length === 0) {
+            text.innerText = `0`;
+          }
+        } //按倒退鍵會刪除顯示欄的最後一個字，如果刪光了就變0
+        else {
+          if (
+            (text.innerText === `-` && isNaN(parseInt(btnText))) ||
+            (isNaN(parseInt(text.innerText[text.innerText.length - 1])) &&
+              isNaN(parseInt(btnText)))
+          )
+            return;
+
+          if (text.innerText === `.`) {
+            text.innerText = `0.`;
+          }
+
+          if (text.innerText !== `0`) {
+            text.innerText += btnText;
+          } else if (![`+`, `*`, `/`].includes(btnText)) {
+            text.innerText = btnText;
+          }
+        }
+      };
+    </script>
+  </body>
+</html>
